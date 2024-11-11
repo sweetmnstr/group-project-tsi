@@ -18,6 +18,19 @@ public class FinishedProductService {
         return finishedProductRepository.findAll();
     }
 
+    public FinishedProduct adjustQuantity(Long id, int quantityAdjustment) {
+        FinishedProduct product = finishedProductRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id " + id));
+
+        int newQuantity = product.getQuantity() + quantityAdjustment;
+        if (newQuantity < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative");
+        }
+
+        product.setQuantity(newQuantity);
+        return finishedProductRepository.save(product);
+    }
+
     public FinishedProduct getFinishedProductById(Long id) {
         return finishedProductRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("FinishedProduct not found"));
