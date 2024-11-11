@@ -1,6 +1,7 @@
 package com.example.chocolate.controllers;
 
 import com.example.chocolate.entities.FinishedProduct;
+import com.example.chocolate.exceptions.ResourceNotFoundException;
 import com.example.chocolate.services.FinishedProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,21 @@ public class FinishedProductController {
     @Operation(summary = "Get finished product by ID", description = "Get a finished product by its ID")
     public FinishedProduct getFinishedProductById(@PathVariable Long id) {
         return finishedProductService.getFinishedProductById(id);
+    }
+
+    @PatchMapping("/{id}/adjustQuantity")
+    @Operation(summary = "Adjust quantity", description = "Adjust quantity")
+    public ResponseEntity<FinishedProduct> adjustQuantity(
+            @PathVariable Long id,
+            @RequestParam int quantityAdjustment) {
+        try {
+            FinishedProduct updatedProduct = finishedProductService.adjustQuantity(id, quantityAdjustment);
+            return ResponseEntity.ok(updatedProduct);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     @PostMapping
