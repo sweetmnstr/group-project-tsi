@@ -1,5 +1,6 @@
 package com.example.chocolate.controllers;
 
+import com.example.chocolate.dtos.RawMaterialBatchRequest;
 import com.example.chocolate.entities.*;
 import com.example.chocolate.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,13 @@ public class RawMaterialController {
     @PostMapping
     public RawMaterial createRawMaterial(@RequestBody RawMaterial rawMaterial) {
         return rawMaterialService.saveRawMaterial(rawMaterial);
+    }
+
+    @Operation(summary = "Create raw materials in batch", description = "Create multiple raw materials")
+    @PostMapping("/batch")
+    public ResponseEntity<List<RawMaterial>> addRawMaterialsBatch(@RequestBody RawMaterialBatchRequest batchRequest) {
+        List<RawMaterial> savedMaterials = rawMaterialService.addRawMaterialsBatch(batchRequest.getRawMaterials());
+        return ResponseEntity.ok(savedMaterials);
     }
 
     @Operation(summary = "Update raw material", description = "Update an existing raw material")
