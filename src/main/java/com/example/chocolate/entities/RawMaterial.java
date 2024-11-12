@@ -47,4 +47,8 @@ public class RawMaterial {
     public void setSupplier(Supplier supplier) {
         this.supplier = supplier;
     }
+
+    public Long getSupplierId() {
+        return supplier.getId();
+    }
 }
