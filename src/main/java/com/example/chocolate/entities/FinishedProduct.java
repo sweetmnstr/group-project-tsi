@@ -54,15 +54,18 @@ public class FinishedProduct {
         return expiryDate;
     }
 
-    public void setExpiryDate(LocalDate expiryDate) {
-        this.expiryDate = expiryDate;
-    }
-
     public Set<RawMaterial> getRawMaterials() {
         return rawMaterials;
     }
 
     public void setRawMaterials(Set<RawMaterial> rawMaterials) {
         this.rawMaterials = rawMaterials;
+    }
+
+    public void setExpiryDate(LocalDate expiryDate) {
+        if (productionDate != null && expiryDate.isBefore(productionDate)) {
+            throw new IllegalArgumentException("Expiry date must be after production date.");
+        }
+        this.expiryDate = expiryDate;
     }
 }

@@ -13,6 +13,7 @@ import java.util.List;
 public class FinishedProductService {
     @Autowired
     private FinishedProductRepository finishedProductRepository;
+    private static final int QUANTITY_THRESHOLD = 30;
 
     public List<FinishedProduct> getAllFinishedProducts() {
         return finishedProductRepository.findAll();
@@ -26,9 +27,13 @@ public class FinishedProductService {
         if (newQuantity < 0) {
             throw new IllegalArgumentException("Quantity cannot be negative");
         }
-
         product.setQuantity(newQuantity);
         return finishedProductRepository.save(product);
+    }
+
+    private void triggerQuantityAlert(FinishedProduct product) {
+        System.out.println("Alert: Product " + product.getName() + " (ID: " + product.getId()
+                + ") has fallen below the quantity threshold of " + QUANTITY_THRESHOLD + ".");
     }
 
     public FinishedProduct getFinishedProductById(Long id) {
