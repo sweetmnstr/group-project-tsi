@@ -13,10 +13,19 @@ public class FinishedProduct {
     private int quantity;
     private LocalDate productionDate;
     private LocalDate expiryDate;
+    private double cost;
 
     @ManyToMany
     @JoinTable(name = "product_raw_material", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "raw_material_id"))
     private Set<RawMaterial> rawMaterials;
+
+    public double getCost() {
+        return cost;
+    }
+
+    public void setCost(double cost) {
+        this.cost = cost;
+    }
 
     public Long getId() {
         return id;
