@@ -12,3 +12,4 @@ public interface FinishedProductRepository extends JpaRepository<FinishedProduct
 
     List<FinishedProduct> findByQuantityGreaterThanEqual(int quantity);
 }
+
