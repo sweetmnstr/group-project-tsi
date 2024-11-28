@@ -3,10 +3,15 @@ package com.example.chocolate.services;
 import com.example.chocolate.entities.FinishedProduct;
 import com.example.chocolate.exceptions.ResourceNotFoundException;
 import com.example.chocolate.repositories.FinishedProductRepository;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -17,6 +22,22 @@ public class FinishedProductService {
 
     public List<FinishedProduct> getAllFinishedProducts() {
         return finishedProductRepository.findAll();
+    }
+
+    private static final Logger logger = LoggerFactory.getLogger(FinishedProductService.class);
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void checkAndNotifyExpiredProducts() {
+        LocalDate today = LocalDate.now();
+        List<FinishedProduct> expiredProducts = finishedProductRepository.findByExpiryDateBefore(today);
+
+        if (!expiredProducts.isEmpty()) {
+            for (FinishedProduct product : expiredProducts) {
+                logger.warn(
+                        "Expired Product Alert: Product {} has expired. Expiry Date: {}",
+                        product.getName(), product.getExpiryDate());
+            }
+        }
     }
 
     public FinishedProduct adjustQuantity(Long id, int quantityAdjustment) {
