@@ -1,19 +1,34 @@
 package com.example.chocolate.services;
 
 import com.example.chocolate.entities.FinishedProduct;
+import com.example.chocolate.entities.RawMaterial;
 import com.example.chocolate.exceptions.ResourceNotFoundException;
 import com.example.chocolate.repositories.FinishedProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
+import com.example.chocolate.services.RawMaterialService;
 
 @Service
 public class FinishedProductService {
     @Autowired
     private FinishedProductRepository finishedProductRepository;
     private static final int QUANTITY_THRESHOLD = 30;
+    private static final double LABOR_COST_PER_UNIT = 5.0;
+
+    public void calculateAndSetCost(FinishedProduct product) {
+        // Calculate the total cost of raw materials
+        double rawMaterialCost = product.getRawMaterials().stream()
+                .mapToDouble(RawMaterial::getPrice) // Correct method reference
+                .sum();
+
+        // Calculate labor cost
+        double laborCost = LABOR_COST_PER_UNIT * product.getQuantity();
+
+        // Set the total cost
+        product.setCost(rawMaterialCost + laborCost);
+    }
 
     public List<FinishedProduct> getAllFinishedProducts() {
         return finishedProductRepository.findAll();

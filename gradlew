@@ -75,7 +75,7 @@ do
     ls=$( ls -ld "$app_path" )
     link=${ls#*' -> '}
     case $link in             #(
-      /*)   app_path=$link ;; #(
+    /*)   app_path=$link ;; #(
       *)    app_path=$APP_HOME$link ;;
     esac
 done
@@ -106,10 +106,10 @@ msys=false
 darwin=false
 nonstop=false
 case "$( uname )" in                #(
-  CYGWIN* )         cygwin=true  ;; #(
-  Darwin* )         darwin=true  ;; #(
-  MSYS* | MINGW* )  msys=true    ;; #(
-  NONSTOP* )        nonstop=true ;;
+CYGWIN* )         cygwin=true  ;; #(
+Darwin* )         darwin=true  ;; #(
+MSYS* | MINGW* )  msys=true    ;; #(
+NONSTOP* )        nonstop=true ;;
 esac
 
 CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
