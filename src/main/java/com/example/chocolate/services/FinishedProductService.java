@@ -31,6 +31,7 @@ public class FinishedProductService {
         return finishedProductRepository.save(product);
     }
 
+    @SuppressWarnings("unused")
     private void triggerQuantityAlert(FinishedProduct product) {
         System.out.println("Alert: Product " + product.getName() + " (ID: " + product.getId()
                 + ") has fallen below the quantity threshold of " + QUANTITY_THRESHOLD + ".");

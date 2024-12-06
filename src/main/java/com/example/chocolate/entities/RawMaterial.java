@@ -10,11 +10,21 @@ public class RawMaterial {
     private Long id;
     private String name;
     private int quantity;
+    private int restockThreshold;
 
     @ManyToOne
     @JoinColumn(name = "supplier_id")
     @JsonBackReference
     private Supplier supplier;
+
+    // Getters and Setters
+    public int getRestockThreshold() {
+        return restockThreshold;
+    }
+
+    public void setRestockThreshold(int restockThreshold) {
+        this.restockThreshold = restockThreshold;
+    }
 
     public Long getId() {
         return id;
