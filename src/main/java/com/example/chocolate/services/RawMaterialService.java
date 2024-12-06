@@ -4,9 +4,12 @@ import com.example.chocolate.entities.*;
 import com.example.chocolate.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
+
 import com.example.chocolate.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,5 +65,33 @@ public class RawMaterialService {
 
     public List<RawMaterial> sortRawMaterialsByName() {
         return rawMaterialRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
+    }
+
+    public void useRawMaterial(Long id, int quantity) {
+        RawMaterial rawMaterial = rawMaterialRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("RawMaterial not found"));
+
+        if (rawMaterial.getExpiryDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Cannot use expired raw material: " + rawMaterial.getName());
+        }
+
+        if (rawMaterial.getQuantity() < quantity) {
+            throw new IllegalArgumentException("Insufficient quantity for raw material: " + rawMaterial.getName());
+        }
+
+        rawMaterial.setQuantity(rawMaterial.getQuantity() - quantity);
+        rawMaterialRepository.save(rawMaterial);
+    }
+
+    // Run daily at midnight
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void checkForExpiredRawMaterials() {
+        List<RawMaterial> expiredMaterials = rawMaterialRepository.findByExpiryDateBefore(LocalDate.now());
+
+        if (!expiredMaterials.isEmpty()) {
+            for (RawMaterial rawMaterial : expiredMaterials) {
+                System.out.println("Expired raw material: " + rawMaterial.getName() + ", ID: " + rawMaterial.getId());
+            }
+        }
     }
 }
