@@ -2,7 +2,9 @@ package com.example.chocolate.entities;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Set;
+import java.util.List;
 
 @Entity
 public class FinishedProduct {
@@ -89,5 +91,17 @@ public class FinishedProduct {
             throw new IllegalArgumentException("Expiry date must be after production date.");
         }
         this.expiryDate = expiryDate;
+    }
+
+    @OneToMany(mappedBy = "finishedProduct", cascade = CascadeType.ALL)
+    private List<Recall> recalls = new ArrayList<>();
+
+    // Getters and Setters
+    public List<Recall> getRecalls() {
+        return recalls;
+    }
+
+    public void setRecalls(List<Recall> recalls) {
+        this.recalls = recalls;
     }
 }
