@@ -33,8 +33,9 @@ public class OrderController {
 
     @Operation(summary = "Create order", description = "Create a new order")
     @PostMapping
-    public Order createOrder(@RequestBody Order order) {
-        return orderService.saveOrder(order);
+    public ResponseEntity<Order> createOrder(@RequestBody Order order) {
+        Order savedOrder = orderService.createOrder(order);
+        return ResponseEntity.ok(savedOrder);
     }
 
     @Operation(summary = "Update order", description = "Update an existing order")
