@@ -1,9 +1,13 @@
 package com.example.chocolate.services;
 
+import com.example.chocolate.entities.FinishedProduct;
 import com.example.chocolate.entities.Order;
+import com.example.chocolate.repositories.FinishedProductRepository;
 import com.example.chocolate.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+
+import com.example.chocolate.exceptions.InsufficientStockException;
 import com.example.chocolate.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +16,9 @@ import java.util.List;
 
 @Service
 public class OrderService {
+    @Autowired
+    private FinishedProductRepository finishedProductRepository;
+
     @Autowired
     private OrderRepository orderRepository;
 
@@ -24,6 +31,18 @@ public class OrderService {
     }
 
     public Order saveOrder(Order order) {
+
+        FinishedProduct product = finishedProductRepository.findById(order.getProduct().getId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Product not found with ID: " + order.getProduct().getId()));
+        if (order.getQuantity() > product.getQuantity()) {
+            throw new InsufficientStockException(
+                    "Insufficient stock for product: " + product.getName() +
+                            ". Available: " + product.getQuantity() + ", Requested: " + order.getQuantity());
+        }
+        product.setQuantity(product.getQuantity() - order.getQuantity());
+        finishedProductRepository.save(product);
+
         return orderRepository.save(order);
     }
 

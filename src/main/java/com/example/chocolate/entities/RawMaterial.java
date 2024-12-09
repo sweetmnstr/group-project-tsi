@@ -2,6 +2,7 @@ package com.example.chocolate.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 public class RawMaterial {
@@ -16,6 +17,15 @@ public class RawMaterial {
     @JoinColumn(name = "supplier_id")
     @JsonBackReference
     private Supplier supplier;
+    private LocalDate expiryDate;
+
+    public LocalDate getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(LocalDate expiryDate) {
+        this.expiryDate = expiryDate;
+    }
 
     // Getters and Setters
     public int getRestockThreshold() {

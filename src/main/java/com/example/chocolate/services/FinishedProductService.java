@@ -1,18 +1,46 @@
 package com.example.chocolate.services;
 
 import com.example.chocolate.entities.FinishedProduct;
+import com.example.chocolate.entities.RawMaterial;
 import com.example.chocolate.exceptions.ResourceNotFoundException;
 import com.example.chocolate.repositories.FinishedProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
+import com.example.chocolate.repositories.RawMaterialRepository;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class FinishedProductService {
+
+    @Autowired
+    private RawMaterialRepository rawMaterialRepository;
+
     @Autowired
     private FinishedProductRepository finishedProductRepository;
+
+    public void produceFinishedProduct(Long rawMaterialId, int quantity) {
+
+        // Use rawMaterialRepository instance to call findById
+        RawMaterial rawMaterial = rawMaterialRepository.findById(rawMaterialId)
+                .orElseThrow(() -> new IllegalArgumentException("RawMaterial not found with ID: " + rawMaterialId));
+
+        // Validate if raw material is expired
+        if (rawMaterial.getExpiryDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Cannot use expired raw material: " + rawMaterial.getName());
+        }
+
+        // Check for sufficient quantity
+        if (rawMaterial.getQuantity() < quantity) {
+            throw new IllegalArgumentException("Insufficient quantity for raw material: " + rawMaterial.getName());
+        }
+
+        // Deduct the quantity used in production
+        rawMaterial.setQuantity(rawMaterial.getQuantity() - quantity);
+        rawMaterialRepository.save(rawMaterial);
+    }
+
     private static final int QUANTITY_THRESHOLD = 30;
 
     public List<FinishedProduct> getAllFinishedProducts() {
@@ -61,4 +89,5 @@ public class FinishedProductService {
     public List<FinishedProduct> sortFinishedProductsByName() {
         return finishedProductRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
     }
+
 }
