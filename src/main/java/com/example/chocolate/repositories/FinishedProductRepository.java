@@ -15,3 +15,4 @@ public interface FinishedProductRepository extends JpaRepository<FinishedProduct
 
     List<FinishedProduct> findByExpiryDateBefore(LocalDate date);
 }
+

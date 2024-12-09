@@ -11,7 +11,10 @@ public class FinishedProduct {
     private Long id;
     private String name;
     private int quantity;
+    @Column(nullable = false)
     private LocalDate productionDate;
+
+    @Column(nullable = false)
     private LocalDate expiryDate;
 
     @ManyToMany
