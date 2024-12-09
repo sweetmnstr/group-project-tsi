@@ -4,16 +4,49 @@ import com.example.chocolate.entities.FinishedProduct;
 import com.example.chocolate.entities.RawMaterial;
 import com.example.chocolate.exceptions.ResourceNotFoundException;
 import com.example.chocolate.repositories.FinishedProductRepository;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import com.example.chocolate.repositories.RawMaterialRepository;
+import java.time.LocalDate;
 import java.util.List;
 import com.example.chocolate.services.RawMaterialService;
 
 @Service
 public class FinishedProductService {
+
+    @Autowired
+    private RawMaterialRepository rawMaterialRepository;
+
     @Autowired
     private FinishedProductRepository finishedProductRepository;
+
+    public void produceFinishedProduct(Long rawMaterialId, int quantity) {
+
+        // Use rawMaterialRepository instance to call findById
+        RawMaterial rawMaterial = rawMaterialRepository.findById(rawMaterialId)
+                .orElseThrow(() -> new IllegalArgumentException("RawMaterial not found with ID: " + rawMaterialId));
+
+        // Validate if raw material is expired
+        if (rawMaterial.getExpiryDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Cannot use expired raw material: " + rawMaterial.getName());
+        }
+
+        // Check for sufficient quantity
+        if (rawMaterial.getQuantity() < quantity) {
+            throw new IllegalArgumentException("Insufficient quantity for raw material: " + rawMaterial.getName());
+        }
+
+        // Deduct the quantity used in production
+        rawMaterial.setQuantity(rawMaterial.getQuantity() - quantity);
+        rawMaterialRepository.save(rawMaterial);
+    }
+
     private static final int QUANTITY_THRESHOLD = 30;
     private static final double LABOR_COST_PER_UNIT = 5.0;
 
@@ -34,6 +67,22 @@ public class FinishedProductService {
         return finishedProductRepository.findAll();
     }
 
+    private static final Logger logger = LoggerFactory.getLogger(FinishedProductService.class);
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void checkAndNotifyExpiredProducts() {
+        LocalDate today = LocalDate.now();
+        List<FinishedProduct> expiredProducts = finishedProductRepository.findByExpiryDateBefore(today);
+
+        if (!expiredProducts.isEmpty()) {
+            for (FinishedProduct product : expiredProducts) {
+                logger.warn(
+                        "Expired Product Alert: Product {} has expired. Expiry Date: {}",
+                        product.getName(), product.getExpiryDate());
+            }
+        }
+    }
+
     public FinishedProduct adjustQuantity(Long id, int quantityAdjustment) {
         FinishedProduct product = finishedProductRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id " + id));
@@ -46,6 +95,7 @@ public class FinishedProductService {
         return finishedProductRepository.save(product);
     }
 
+    @SuppressWarnings("unused")
     private void triggerQuantityAlert(FinishedProduct product) {
         System.out.println("Alert: Product " + product.getName() + " (ID: " + product.getId()
                 + ") has fallen below the quantity threshold of " + QUANTITY_THRESHOLD + ".");
@@ -75,4 +125,5 @@ public class FinishedProductService {
     public List<FinishedProduct> sortFinishedProductsByName() {
         return finishedProductRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
     }
+
 }

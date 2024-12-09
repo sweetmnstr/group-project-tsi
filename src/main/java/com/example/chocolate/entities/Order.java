@@ -13,6 +13,9 @@ public class Order {
     private LocalDate orderDate;
     private LocalDate deliveryDate;
 
+    @ManyToMany
+    @JoinTable(name = "order_products", joinColumns = @JoinColumn(name = "order_id"), inverseJoinColumns = @JoinColumn(name = "product_id"))
+
     @ManyToOne
     @JoinColumn(name = "store_id")
     private Store store;
