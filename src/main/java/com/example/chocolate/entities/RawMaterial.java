@@ -11,6 +11,7 @@ public class RawMaterial {
     private Long id;
     private String name;
     private int quantity;
+    private double price;
     private int restockThreshold;
 
     @ManyToOne
@@ -58,6 +59,14 @@ public class RawMaterial {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     public Supplier getSupplier() {
