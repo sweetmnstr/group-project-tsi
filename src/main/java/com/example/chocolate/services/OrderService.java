@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import com.example.chocolate.exceptions.InsufficientStockException;
 import com.example.chocolate.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
+import com.example.chocolate.exceptions.ValidationException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -68,5 +69,22 @@ public class OrderService {
 
     public List<Order> sortOrdersByDeliveryDate() {
         return orderRepository.findAll(Sort.by(Sort.Direction.ASC, "deliveryDate"));
+    }
+
+    private static final LocalDate BUSINESS_START_DATE = LocalDate.of(2020, 1, 1);
+
+    public Order createOrder(Order order) {
+        validateOrderDate(order.getOrderDate());
+        return orderRepository.save(order);
+    }
+
+    private void validateOrderDate(LocalDate orderDate) {
+        if (orderDate.isAfter(LocalDate.now())) {
+            throw new ValidationException("Order date cannot be in the future");
+        }
+        if (orderDate.isBefore(BUSINESS_START_DATE)) {
+            throw new ValidationException(
+                    "Order date cannot be earlier than the business start date: " + BUSINESS_START_DATE);
+        }
     }
 }
