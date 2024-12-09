@@ -16,6 +16,7 @@ import com.example.chocolate.repositories.RawMaterialRepository;
 import java.time.LocalDate;
 import java.util.List;
 import com.example.chocolate.services.RawMaterialService;
+import java.util.stream.Collectors;
 
 @Service
 public class FinishedProductService {
@@ -126,4 +127,10 @@ public class FinishedProductService {
         return finishedProductRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
     }
 
+    public List<FinishedProduct> getProductsBelowReorderLevel() {
+        return finishedProductRepository.findAll()
+                .stream()
+                .filter(product -> product.getQuantity() < product.getReorderLevel())
+                .collect(Collectors.toList());
+    }
 }

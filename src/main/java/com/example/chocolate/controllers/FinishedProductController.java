@@ -87,4 +87,10 @@ public class FinishedProductController {
     public List<FinishedProduct> sortFinishedProductsByName() {
         return finishedProductService.sortFinishedProductsByName();
     }
+
+    @GetMapping("/below-reorder-level")
+    public ResponseEntity<List<FinishedProduct>> getProductsBelowReorderLevel() {
+        List<FinishedProduct> lowStockProducts = finishedProductService.getProductsBelowReorderLevel();
+        return ResponseEntity.ok(lowStockProducts);
+    }
 }

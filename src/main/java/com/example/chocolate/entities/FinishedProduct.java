@@ -22,6 +22,16 @@ public class FinishedProduct {
     @JoinTable(name = "product_raw_material", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "raw_material_id"))
     private Set<RawMaterial> rawMaterials;
 
+    private int reorderLevel;
+
+    public int getReorderLevel() {
+        return reorderLevel;
+    }
+
+    public void setReorderLevel(int reorderLevel) {
+        this.reorderLevel = reorderLevel;
+    }
+
     public double getCost() {
         return cost;
     }
