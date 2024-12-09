@@ -3,8 +3,10 @@ package com.example.chocolate.entities;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 public class FinishedProduct {
@@ -103,5 +105,20 @@ public class FinishedProduct {
 
     public void setRecalls(List<Recall> recalls) {
         this.recalls = recalls;
+    }
+
+    @ElementCollection
+    @CollectionTable(name = "finished_product_sales_history", joinColumns = @JoinColumn(name = "finished_product_id"))
+    @MapKeyColumn(name = "month")
+    @Column(name = "sales")
+    private Map<Integer, Integer> salesHistory = new HashMap<>(); // Month -> Sales
+
+    // Getters and Setters
+    public Map<Integer, Integer> getSalesHistory() {
+        return salesHistory;
+    }
+
+    public void setSalesHistory(Map<Integer, Integer> salesHistory) {
+        this.salesHistory = salesHistory;
     }
 }
